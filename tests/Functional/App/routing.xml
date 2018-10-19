@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <route id="1" controller="tests\Libero\ApiProblemBundle\Functional\App\Controller::success" path="/"/>
+
+    <route id="2" controller="tests\Libero\ApiProblemBundle\Functional\App\Controller::httpException" path="/418"/>
+
+    <route id="3" controller="tests\Libero\ApiProblemBundle\Functional\App\Controller::exception" path="/500"/>
+
+    <route id="4" controller="tests\Libero\ApiProblemBundle\Functional\App\Controller::apiProblem" path="/429"/>
+
+</routes>
