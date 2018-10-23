@@ -50,7 +50,7 @@ final class ApiProblemListener
         }
 
         $response = new Response(
-            $exception->getDocument()->C14N(),
+            $document->saveXML(),
             $status,
             [
                 'Content-Language' => $language,
