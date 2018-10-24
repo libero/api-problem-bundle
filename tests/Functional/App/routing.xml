@@ -14,6 +14,6 @@
         controller="tests\Libero\ApiProblemBundle\Functional\App\Controller::exception"/>
 
     <route id="4" path="/500-runtime"
-           controller="tests\Libero\ApiProblemBundle\Functional\App\Controller::runtimeException"/>
+        controller="tests\Libero\ApiProblemBundle\Functional\App\Controller::runtimeException"/>
 
 </routes>
