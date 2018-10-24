@@ -16,4 +16,9 @@ final class ApiProblemExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
     }
+
+    public function getAlias() : string
+    {
+        return 'api_problem';
+    }
 }
