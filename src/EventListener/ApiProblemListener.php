@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Libero\ApiProblemBundle\EventListener;
 
 use FluentDOM\DOM\Element;
-use Libero\ApiProblemBundle\Exception\ApiProblem;
+use Libero\ApiProblemBundle\Event\CreateApiProblem;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -14,25 +15,31 @@ use function substr;
 
 final class ApiProblemListener
 {
+    private $eventDispatcher;
+
+    public function __construct(EventDispatcherInterface $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
     public function onKernelException(GetResponseForExceptionEvent $event) : void
     {
         $request = $event->getRequest();
         $exception = $event->getException();
 
-        if (!$exception instanceof ApiProblem) {
-            $exception = new ApiProblem($request, $exception);
-        }
+        $apiProblemEvent = new CreateApiProblem($request, $exception);
 
-        $document = $exception->getDocument();
+        $this->eventDispatcher->dispatch($apiProblemEvent::NAME, $apiProblemEvent);
+
+        $document = $apiProblemEvent->getDocument();
         /** @var Element $root */
         $root = $document->documentElement;
 
         $language = $root->getAttribute('xml:lang') ?? 'en';
 
         if (!$root('count(rfc7807:status)')) {
-            $previous = $exception->getPrevious();
-            if ($previous instanceof HttpExceptionInterface) {
-                $status = $previous->getStatusCode();
+            if ($exception instanceof HttpExceptionInterface) {
+                $status = $exception->getStatusCode();
             } else {
                 $status = Response::HTTP_INTERNAL_SERVER_ERROR;
             }
@@ -58,7 +65,6 @@ final class ApiProblemListener
             ]
         );
 
-        $event->setException($exception);
         $event->setResponse($response);
     }
 }

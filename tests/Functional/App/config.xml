@@ -8,4 +8,13 @@
 
     <framework:config secret="secret"/>
 
+    <services>
+
+        <service id="tests\Libero\ApiProblemBundle\Functional\App\ApiProblemListener"
+            class="tests\Libero\ApiProblemBundle\Functional\App\ApiProblemListener">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+    </services>
+
 </container>

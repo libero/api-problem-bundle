@@ -153,11 +153,11 @@ final class ExceptionsTest extends FunctionalTestCase
     /**
      * @test
      */
-    public function it_handles_an_api_problem() : void
+    public function it_allows_the_api_problem_to_be_extended() : void
     {
         $kernel = static::getKernel();
 
-        $request = Request::create('/429');
+        $request = Request::create('/500-runtime');
 
         $response = $kernel->handle($request);
 
@@ -167,8 +167,7 @@ final class ExceptionsTest extends FunctionalTestCase
         $this->assertXmlStringEqualsXmlString(
             '<problem xml:lang="en" xmlns="urn:ietf:rfc:7807">
                 <status>429</status>
-                <title>Too Many Requests</title>
-                <details>Calm it down.</details>
+                <title>A custom title: A runtime exception</title>
             </problem>',
             $response->getContent()
         );

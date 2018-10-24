@@ -18,7 +18,7 @@ If you're not using [Symfony Flex](https://symfony.com/doc/current/setup/flex.ht
 
 All exceptions are caught and turned into a `application/problem+xml` response.
 
-Throw an [`ApiProblem`](Libero\ApiProblemBundle\Exception\ApiProblem) to customise the response, or [listen for the `kernel.exception` event](https://symfony.com/doc/current/reference/events.html#kernel-exception) and turn some other exception into a `ApiProblem`.
+To modify the contents of the response, you can listen for the [`libero.api_problem.create` event](src/Event/CreateApiProblem.php).
 
 Any remaining exceptions will be caught; unless the exception is an instance of Symfony's `HttpExceptionInterface`, the response will be `500 Internal Server Error`.
 

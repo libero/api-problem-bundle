@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace tests\Libero\ApiProblemBundle\Functional\App;
 
 use Exception;
-use FluentDOM\DOM\Element;
-use Libero\ApiProblemBundle\Exception\ApiProblem;
-use Symfony\Component\HttpFoundation\Request;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -28,16 +26,8 @@ final class Controller
         throw new Exception('An exception');
     }
 
-    public function apiProblem(Request $request) : Response
+    public function runtimeException() : Response
     {
-        $apiProblem = new ApiProblem($request);
-        /** @var Element $root */
-        $root = $apiProblem->getDocument()->documentElement;
-
-        $root->appendElement('status', (string) Response::HTTP_TOO_MANY_REQUESTS);
-        $root->appendElement('title', 'Too Many Requests');
-        $root->appendElement('details', 'Calm it down.');
-
-        throw $apiProblem;
+        throw new RuntimeException('A runtime exception');
     }
 }

@@ -2,21 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Libero\ApiProblemBundle\Exception;
+namespace Libero\ApiProblemBundle\Event;
 
 use FluentDOM\DOM\Document;
-use RuntimeException;
+use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
-final class ApiProblem extends RuntimeException
+final class CreateApiProblem extends Event
 {
+    public const NAME = 'libero.api_problem.create';
+
     private $document;
+    private $exception;
 
-    public function __construct(Request $request, ?Throwable $previous = null)
+    public function __construct(Request $request, Throwable $exception)
     {
-        parent::__construct($previous ? $previous->getMessage() : '', $previous ? $previous->getCode() : 0, $previous);
-
+        $this->exception = $exception;
         $this->document = new Document();
 
         $this->document->registerNamespace('', 'urn:ietf:rfc:7807');
@@ -28,5 +30,10 @@ final class ApiProblem extends RuntimeException
     public function getDocument() : Document
     {
         return $this->document;
+    }
+
+    public function getException() : Throwable
+    {
+        return $this->exception;
     }
 }

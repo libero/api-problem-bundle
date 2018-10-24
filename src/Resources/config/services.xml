@@ -10,6 +10,7 @@
 
         <service id="Libero\ApiProblemBundle\EventListener\ApiProblemListener"
             class="Libero\ApiProblemBundle\EventListener\ApiProblemListener">
+            <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_listener" event="kernel.exception" priority="-127"/>
         </service>
 
