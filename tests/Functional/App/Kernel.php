@@ -44,7 +44,7 @@ final class Kernel extends BaseKernel
 
     public function getLogDir() : string
     {
-        return sys_get_temp_dir().'/'.Kernel::VERSION."/logs";
+        return sys_get_temp_dir().'/'.Kernel::VERSION.'/logs';
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader) : void
