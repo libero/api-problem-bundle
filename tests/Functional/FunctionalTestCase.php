@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace tests\Libero\ApiProblemBundle\Functional;
 
+use LogicException;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Debug\BufferingLogger;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 use tests\Libero\ApiProblemBundle\Functional\App\Kernel;
@@ -31,6 +34,26 @@ abstract class FunctionalTestCase extends TestCase
         parent::tearDownAfterClass();
 
         self::$filesystem->remove(self::$kernel->getCacheDir());
+    }
+
+    /**
+     * @before
+     */
+    final public function resetLogger() : void
+    {
+        /** @var BufferingLogger $logger */
+        $logger = self::getContainer()->get('logger');
+
+        $logger->cleanLogs();
+    }
+
+    final public function getContainer() : ContainerInterface
+    {
+        if (!$kernel = self::$kernel->getContainer()) {
+            throw new LogicException('Kernel is shut down');
+        }
+
+        return $kernel;
     }
 
     final public function getKernel() : KernelInterface

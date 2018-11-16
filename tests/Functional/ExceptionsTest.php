@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace tests\Libero\ApiProblemBundle\Functional;
 
+use Exception;
+use Symfony\Component\Debug\BufferingLogger;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use function array_slice;
 
 final class ExceptionsTest extends FunctionalTestCase
 {
@@ -28,6 +32,56 @@ final class ExceptionsTest extends FunctionalTestCase
                 <title>Internal Server Error</title>
             </problem>',
             $response->getContent()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_logs_critical_exceptions() : void
+    {
+        $kernel = static::getKernel();
+        /** @var BufferingLogger $logger */
+        $logger = $this->getContainer()->get('logger');
+
+        $request = Request::create('/500');
+
+        $kernel->handle($request);
+
+        $this->assertEquals(
+            [
+                [
+                    'critical',
+                    'Exception '.Exception::class.': "An exception" at '.__DIR__.'/App/Controller.php line 26',
+                    ['exception' => new Exception('An exception')],
+                ],
+            ],
+            array_slice($logger->cleanLogs(), 1)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_logs_exceptions() : void
+    {
+        $kernel = static::getKernel();
+        /** @var BufferingLogger $logger */
+        $logger = $this->getContainer()->get('logger');
+
+        $request = Request::create('/418');
+
+        $kernel->handle($request);
+
+        $this->assertEquals(
+            [
+                [
+                    'error',
+                    'Exception '.HttpException::class.': "An HTTP exception" at '.__DIR__.'/App/Controller.php line 21',
+                    ['exception' => new HttpException(418, 'An HTTP exception')],
+                ],
+            ],
+            array_slice($logger->cleanLogs(), 1)
         );
     }
 
