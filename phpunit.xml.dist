@@ -4,6 +4,10 @@
     xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.2/phpunit.xsd" colors="true"
     bootstrap="vendor/autoload.php">
 
+    <php>
+        <env name="KERNEL_CLASS" value="tests\Libero\ApiProblemBundle\Functional\App\Kernel"/>
+    </php>
+
     <testsuites>
         <testsuite name="ApiProblemBundle">
             <directory suffix=".php">tests</directory>

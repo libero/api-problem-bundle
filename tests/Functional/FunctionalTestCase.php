@@ -4,48 +4,39 @@ declare(strict_types=1);
 
 namespace tests\Libero\ApiProblemBundle\Functional;
 
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\Filesystem\Filesystem;
+use LogicException;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-use tests\Libero\ApiProblemBundle\Functional\App\Kernel;
 
-abstract class FunctionalTestCase extends TestCase
+abstract class FunctionalTestCase extends KernelTestCase
 {
-    /** @var Filesystem */
-    private static $filesystem;
+    /** @var ContainerInterface */
+    protected static $container;
 
-    /**
-     * @var KernelInterface
-     */
-    private static $kernel;
-
-    public static function setUpBeforeClass() : void
+    final protected static function bootKernel(array $options = []) : KernelInterface
     {
-        self::$filesystem = new Filesystem();
-        parent::setUpBeforeClass();
-        self::$kernel = self::createKernel();
-    }
-
-    public static function tearDownAfterClass() : void
-    {
-        parent::tearDownAfterClass();
-
-        self::$filesystem->remove(self::$kernel->getCacheDir());
-    }
-
-    final public function getKernel() : KernelInterface
-    {
-        return self::$kernel;
-    }
-
-    private static function createKernel(array $options = []) : KernelInterface
-    {
-        $kernel = new Kernel(
-            $options['environment'] ?? 'test',
-            $options['debug'] ?? true
-        );
-        $kernel->boot();
+        $kernel = parent::bootKernel($options);
+        if (static::$container instanceof TestContainer) {
+            return $kernel;
+        }
+        // For Symfony < 4.1
+        $container = $kernel->getContainer();
+        if (!$container instanceof ContainerInterface) {
+            throw new LogicException('Could not find the container');
+        }
+        static::$container = $container;
 
         return $kernel;
+    }
+
+    final protected static function ensureKernelShutdown() : void
+    {
+        parent::ensureKernelShutdown();
+        if (static::$container instanceof ResettableContainerInterface) {
+            static::$container->reset();
+        }
     }
 }
