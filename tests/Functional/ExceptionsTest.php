@@ -8,6 +8,7 @@ use Exception;
 use Symfony\Component\Debug\BufferingLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use function array_filter;
 use function array_slice;
 
 final class ExceptionsTest extends FunctionalTestCase
@@ -48,6 +49,13 @@ final class ExceptionsTest extends FunctionalTestCase
 
         $kernel->handle($request);
 
+        $logs = array_filter(
+            $logger->cleanLogs(),
+            function (array $entry) : bool {
+                return 'debug' !== $entry[0];
+            }
+        );
+
         $this->assertEquals(
             [
                 [
@@ -56,7 +64,7 @@ final class ExceptionsTest extends FunctionalTestCase
                     ['exception' => new Exception('An exception')],
                 ],
             ],
-            array_slice($logger->cleanLogs(), 1)
+            array_slice($logs, 1)
         );
     }
 
@@ -73,6 +81,13 @@ final class ExceptionsTest extends FunctionalTestCase
 
         $kernel->handle($request);
 
+        $logs = array_filter(
+            $logger->cleanLogs(),
+            function (array $entry) : bool {
+                return 'debug' !== $entry[0];
+            }
+        );
+
         $this->assertEquals(
             [
                 [
@@ -81,7 +96,7 @@ final class ExceptionsTest extends FunctionalTestCase
                     ['exception' => new HttpException(418, 'An HTTP exception')],
                 ],
             ],
-            array_slice($logger->cleanLogs(), 1)
+            array_slice($logs, 1)
         );
     }
 
