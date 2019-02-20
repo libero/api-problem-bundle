@@ -10,6 +10,8 @@
 
     <services>
 
+        <service id="logger" class="Symfony\Component\Debug\BufferingLogger" public="true"/>
+
         <service id="tests\Libero\ApiProblemBundle\Functional\App\ApiProblemListener"
             class="tests\Libero\ApiProblemBundle\Functional\App\ApiProblemListener">
             <tag name="kernel.event_subscriber"/>

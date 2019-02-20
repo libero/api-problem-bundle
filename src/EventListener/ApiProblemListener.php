@@ -6,20 +6,26 @@ namespace Libero\ApiProblemBundle\EventListener;
 
 use FluentDOM\DOM\Element;
 use Libero\ApiProblemBundle\Event\CreateApiProblem;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use function get_class;
+use function sprintf;
 use function strtolower;
 use function substr;
 
 final class ApiProblemListener
 {
     private $eventDispatcher;
+    private $logger;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher)
+    public function __construct(EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
         $this->eventDispatcher = $eventDispatcher;
+        $this->logger = $logger;
     }
 
     public function onKernelException(GetResponseForExceptionEvent $event) : void
@@ -66,5 +72,16 @@ final class ApiProblemListener
         );
 
         $event->setResponse($response);
+
+        $level = $status >= 500 ? LogLevel::CRITICAL : LogLevel::ERROR;
+        $message = sprintf(
+            'Exception %s: "%s" at %s line %s',
+            get_class($exception),
+            $exception->getMessage(),
+            $exception->getFile(),
+            $exception->getLine()
+        );
+
+        $this->logger->log($level, $message, ['exception' => $exception]);
     }
 }
