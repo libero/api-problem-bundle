@@ -5,70 +5,38 @@ declare(strict_types=1);
 namespace tests\Libero\ApiProblemBundle\Functional;
 
 use LogicException;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\Debug\BufferingLogger;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-use tests\Libero\ApiProblemBundle\Functional\App\Kernel;
 
-abstract class FunctionalTestCase extends TestCase
+abstract class FunctionalTestCase extends KernelTestCase
 {
-    /** @var Filesystem */
-    private static $filesystem;
+    /** @var ContainerInterface */
+    protected static $container;
 
-    /**
-     * @var KernelInterface
-     */
-    private static $kernel;
-
-    public static function setUpBeforeClass() : void
+    final protected static function bootKernel(array $options = []) : KernelInterface
     {
-        self::$filesystem = new Filesystem();
-        parent::setUpBeforeClass();
-        self::$kernel = self::createKernel();
-    }
-
-    public static function tearDownAfterClass() : void
-    {
-        parent::tearDownAfterClass();
-
-        self::$filesystem->remove(self::$kernel->getCacheDir());
-    }
-
-    /**
-     * @before
-     */
-    final public function resetLogger() : void
-    {
-        /** @var BufferingLogger $logger */
-        $logger = self::getContainer()->get('logger');
-
-        $logger->cleanLogs();
-    }
-
-    final public function getContainer() : ContainerInterface
-    {
-        if (!$kernel = self::$kernel->getContainer()) {
-            throw new LogicException('Kernel is shut down');
+        $kernel = parent::bootKernel($options);
+        if (static::$container instanceof TestContainer) {
+            return $kernel;
         }
+        // For Symfony < 4.1
+        $container = $kernel->getContainer();
+        if (!$container instanceof ContainerInterface) {
+            throw new LogicException('Could not find the container');
+        }
+        static::$container = $container;
 
         return $kernel;
     }
 
-    final public function getKernel() : KernelInterface
+    final protected static function ensureKernelShutdown() : void
     {
-        return self::$kernel;
-    }
-
-    private static function createKernel(array $options = []) : KernelInterface
-    {
-        $kernel = new Kernel(
-            $options['environment'] ?? 'test',
-            $options['debug'] ?? true
-        );
-        $kernel->boot();
-
-        return $kernel;
+        parent::ensureKernelShutdown();
+        if (static::$container instanceof ResettableContainerInterface) {
+            static::$container->reset();
+        }
     }
 }

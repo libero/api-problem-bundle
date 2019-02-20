@@ -18,7 +18,7 @@ final class ExceptionsTest extends FunctionalTestCase
      */
     public function it_handles_an_exception() : void
     {
-        $kernel = static::getKernel();
+        $kernel = static::bootKernel();
 
         $request = Request::create('/500');
 
@@ -41,9 +41,9 @@ final class ExceptionsTest extends FunctionalTestCase
      */
     public function it_logs_critical_exceptions() : void
     {
-        $kernel = static::getKernel();
+        $kernel = static::bootKernel();
         /** @var BufferingLogger $logger */
-        $logger = $this->getContainer()->get('logger');
+        $logger = static::$container->get('logger');
 
         $request = Request::create('/500');
 
@@ -73,9 +73,9 @@ final class ExceptionsTest extends FunctionalTestCase
      */
     public function it_logs_exceptions() : void
     {
-        $kernel = static::getKernel();
+        $kernel = static::bootKernel();
         /** @var BufferingLogger $logger */
-        $logger = $this->getContainer()->get('logger');
+        $logger = static::$container->get('logger');
 
         $request = Request::create('/418');
 
@@ -105,7 +105,7 @@ final class ExceptionsTest extends FunctionalTestCase
      */
     public function it_handles_an_exception_for_a_request_wanting_a_different_language() : void
     {
-        $kernel = static::getKernel();
+        $kernel = static::bootKernel();
 
         $request = Request::create('/500');
         $request->setLocale('es');
@@ -129,7 +129,7 @@ final class ExceptionsTest extends FunctionalTestCase
      */
     public function it_handles_an_exception_for_a_request_wanting_a_type_of_english() : void
     {
-        $kernel = static::getKernel();
+        $kernel = static::bootKernel();
 
         $request = Request::create('/500');
         $request->setLocale('en-GB-scouse');
@@ -153,7 +153,7 @@ final class ExceptionsTest extends FunctionalTestCase
      */
     public function it_handles_a_http_exception() : void
     {
-        $kernel = static::getKernel();
+        $kernel = static::bootKernel();
 
         $request = Request::create('/418');
 
@@ -176,7 +176,7 @@ final class ExceptionsTest extends FunctionalTestCase
      */
     public function it_handles_a_http_exception_for_a_request_wanting_a_different_language() : void
     {
-        $kernel = static::getKernel();
+        $kernel = static::bootKernel();
 
         $request = Request::create('/418');
         $request->setLocale('es');
@@ -200,7 +200,7 @@ final class ExceptionsTest extends FunctionalTestCase
      */
     public function it_handles_a_http_exception_for_a_request_wanting_a_type_of_english() : void
     {
-        $kernel = static::getKernel();
+        $kernel = static::bootKernel();
 
         $request = Request::create('/418');
         $request->setLocale('en-GB-scouse');
@@ -224,7 +224,7 @@ final class ExceptionsTest extends FunctionalTestCase
      */
     public function it_allows_the_api_problem_to_be_extended() : void
     {
-        $kernel = static::getKernel();
+        $kernel = static::bootKernel();
 
         $request = Request::create('/500-runtime');
 
